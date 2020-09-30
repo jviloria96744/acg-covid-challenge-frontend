@@ -14,6 +14,6 @@ cert_env = core.Environment(account=os.environ["CDK_DEFAULT_ACCOUNT"],
 
 CertificateStack(app, "CertificateStack", sub_domain, domain, env=cert_env)
 stack_id = "PythonETLDashboard"
-StaticSiteStack(app, stack_id, sub_domain, domain, env=aws_env)
+StaticSiteStack(app, stack_id, sub_domain, domain)
 
 app.synth()
