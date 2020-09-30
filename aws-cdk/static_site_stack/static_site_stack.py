@@ -9,12 +9,12 @@ from aws_cdk import (
 
 class StaticSiteStack(core.Stack):
 
-    def __init__(self, scope: core.Construct, id: str, environment: str, domain: str, **kwargs) -> None:
+    def __init__(self, scope: core.Construct, id: str, sub_domain: str, domain: str, **kwargs) -> None:
         """
-        StaticSiteStack creates the CloudFormation Stack that creates the resources necessary to host a static web site from an S3 Bucket with a CloudFormation CDN and a custom domain name.  Three separate stacks are created based on the environment variable ('dev', 'stg', 'prod')
+        StaticSiteStack creates the CloudFormation Stack that creates the resources necessary to host a static web site from an S3 Bucket with a CloudFormation CDN and a custom domain name.  
 
         arguments:
-        environment -- Deployment Environment, e.g. one of ('dev', 'stg', 'prod')
+        sub_domain -- sub domain name used for the dashboard url, acg-covid-challenge
         domain -- custom domain name owned by user, e.g. my-domain.com
         """
 
@@ -24,7 +24,7 @@ class StaticSiteStack(core.Stack):
         self.certificate_arn = self.node.try_get_context("certificate_arn")
 
         bucket = s3.Bucket(self,
-                           f"{environment}bucket",
+                           f"{sub_domain}-bucket",
                            website_index_document="index.html",
                            removal_policy=core.RemovalPolicy.DESTROY,
                            block_public_access=s3.BlockPublicAccess.BLOCK_ALL
@@ -35,36 +35,27 @@ class StaticSiteStack(core.Stack):
 
         oai = cf.OriginAccessIdentity(
             self,
-            f"OriginIdentity-{environment}-{domain}",
+            f"OriginIdentity-{sub_domain}",
         )
 
         alias_configuration = cf.AliasConfiguration(
             acm_cert_ref=self.certificate_arn,
-            names=[f"{environment}.{domain}"],
+            names=[f"{sub_domain}.{domain}"],
             ssl_method=cf.SSLMethod.SNI,
             security_policy=cf.SecurityPolicyProtocol.TLS_V1_1_2016
         )
-
-        # Config dictionary for CloudFront distributions, no caching takes place in dev
-        # The assumption is that it will be changed frequently and those changes will be tested
-        # To use alternative sub-domains, change the keys of this dictionary to match the sub-domains used in certificate_stack.py
-        cf_behavior_dict = {
-            "dev": cf.Behavior(is_default_behavior=True, min_ttl=core.Duration.seconds(0), max_ttl=core.Duration.seconds(0), default_ttl=core.Duration.seconds(0)),
-            "stg": cf.Behavior(is_default_behavior=True),
-            "prod": cf.Behavior(is_default_behavior=True)
-        }
 
         source_config = cf.SourceConfiguration(
             s3_origin_source=cf.S3OriginConfig(
                 s3_bucket_source=bucket,
                 origin_access_identity=oai
             ),
-            behaviors=[cf_behavior_dict[environment]]
+            behaviors=[cf.Behavior(is_default_behavior=True)]
         )
 
         cf_dist = cf.CloudFrontWebDistribution(
             self,
-            f"{environment}-static-site-distribution",
+            f"{sub_domain}-static-site-distribution",
             alias_configuration=alias_configuration,
             origin_configs=[source_config],
             viewer_protocol_policy=cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
@@ -74,12 +65,12 @@ class StaticSiteStack(core.Stack):
 
         # Route53 alias record for the CloudFront Distribution
         hosted_zone = route53.HostedZone.from_lookup(
-            self, "static-site-hosted-zone-id", domain_name=domain)
+            self, f"{sub_domain}-hosted-zone-id", domain_name=domain)
 
         route53.ARecord(
             self,
-            'static-site-alias-record',
-            record_name=f"{environment}.{domain}",
+            f'{sub_domain}-alias-record',
+            record_name=f"{sub_domain}.{domain}",
             target=route53.AddressRecordTarget.from_alias(
                 targets.CloudFrontTarget(cf_dist)),
             zone=hosted_zone

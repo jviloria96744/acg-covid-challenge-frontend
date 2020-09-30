@@ -1,87 +1,22 @@
 name: React CI/CD AWS CDK
 on:
   push:
-    tags:
-      - "v*.*.*"
     branches:
       - master
-      - "feature/**"
     paths:
       - "aws-cdk/static_site_stack/**"
-      - "aws-cdk/artifact_stack/**"
       - "aws-cdk/certificate_stack/**"
       - "aws-cdk/app.py"
-      - "aws-cdk/set_env_vars.sh"
       - "frontend/src/**"
       #- ".github/**" # Uncomment to test workflow changes
 
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Version to be deployed"
-        required: true
 jobs:
-  prod-deployment:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    env:
-      ENVIRONMENT: prod
-      RELEASE_VERSION: ${{ github.event.inputs.tag }}
-      DOMAIN: ${{ secrets.AWS_DOMAIN_NAME }}
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ env.RELEASE_VERSION }}
-      - uses: actions/setup-node@v2-beta
-        with:
-          node-version: "14.x"
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.8"
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - name: Create and Deploy AWS Resources
-        uses: ./.github/actions/create-stacks
-      - name: Deploy To S3 Bucket From Artifact Bucket
-        run: aws s3 sync s3://$(echo $ARTIFACT_BUCKET | tr -d '"')/Release-$RELEASE_VERSION/ s3://$BUCKET --delete
-      - name: Invalidate CloudFront Cache
-        run: aws cloudfront create-invalidation --distribution-id $DIST_ID --paths "/*"
-
-  test-only:
-    if: contains(github.ref, 'feature') && github.event_name != 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2-beta
-        with:
-          node-version: "14.x"
-      - name: Install Dependencies
-        run: |
-          cd frontend
-          npm install
-      - name: Run Front-End Tests
-        uses: ./.github/actions/run-tests
-
   build:
-    if: (github.event_name == 'pull_request' || contains(github.ref, 'tags') || contains(github.ref, 'master')) && github.event_name != 'workflow_dispatch'
     env:
       DOMAIN: ${{ secrets.AWS_DOMAIN_NAME }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Set ENVIRONMENT variable
-        run: |
-          if grep -q "master" <<< "${{github.ref}}" || grep -q "master" <<< "${{github.base_ref}}"; then
-            echo "::set-env name=ENVIRONMENT::dev"
-          elif grep -q "tags" <<< "${{github.ref}}"; then
-            echo "::set-env name=ENVIRONMENT::stg" && echo "::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})"
-          fi
       - uses: actions/setup-node@v2-beta
         with:
           node-version: "14.x"
@@ -94,18 +29,6 @@ jobs:
           npm install
       - name: Run Front-End Tests
         uses: ./.github/actions/run-tests
-      # I leave this commented block as a VERY HEAVY-HANDED way of handling failed tests
-      # - name: Revert on failed test
-      #   if: failure()
-      #   run: |
-      #     git config user.name "github-actions[bot]"
-      #     git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      #     if ${{ github.event_name }} != 'pull_request'; then
-      #       git revert --no-edit HEAD
-      #     else
-      #       git revert --no-edit -m 1 HEAD
-      #     fi
-      #     git push
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -119,11 +42,5 @@ jobs:
           cd frontend
           npm run build
           aws s3 sync ./build s3://$BUCKET --delete
-      - name: Store Build In Artifact Bucket
-        if: env.ENVIRONMENT == 'stg'
-        run: |
-          cd frontend
-          aws s3 sync ./build s3://$(echo $ARTIFACT_BUCKET | tr -d '"')/Release-$RELEASE_VERSION/ --delete
       - name: Invalidate CloudFront Cache
-        if: env.ENVIRONMENT == 'stg'
         run: aws cloudfront create-invalidation --distribution-id $DIST_ID --paths "/*"

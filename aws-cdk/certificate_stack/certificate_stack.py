@@ -6,22 +6,20 @@ from aws_cdk import (
 
 class CertificateStack(core.Stack):
 
-    def __init__(self, scope: core.Construct, id: str, domain: str, ** kwargs) -> None:
+    def __init__(self, scope: core.Construct, id: str, sub_domain: str, domain: str, ** kwargs) -> None:
         """
         CertificateStack creates the CloudFormation Stack that provisions the SSL Certificate that the CloudFront Distributions use for HTTPS traffic.
 
         arguments:
+        sub_domain -- sub domain name used for the dashboard url, acg-covid-challenge
         domain -- custom domain name owned by user, e.g. my-domain.com        
         """
 
         super().__init__(scope, id, **kwargs)
 
-        # Certificate covers three domains, prod.my-domain.com, dev.my-domain.com, stg.my-domain.com
-        # To use alternative sub-domains, the domain_name and subject_alternative_names keyword arguments must be changed
+        # Certificate covers the domain, acg-covid-challenge.my-domain.com
         certificate = cm.Certificate(self, "MyCertificate",
-                                     domain_name=f"prod.{domain}",
-                                     subject_alternative_names=[
-                                         f"dev.{domain}", f"stg.{domain}"],
+                                     domain_name=f"{sub_domain}.{domain}",
                                      validation_method=cm.ValidationMethod.DNS
                                      )
 

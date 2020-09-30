@@ -14,24 +14,18 @@ runs:
     - name: Create Stacks
       run: |
         cd aws-cdk
-        cdk ls -c environment=${{ env.ENVIRONMENT }} -c domain="${{ env.DOMAIN }}" -c certificate_arn="Dummy Value"
+        cdk ls -c domain="${{ env.DOMAIN }}" -c certificate_arn="Dummy Value"
       shell: bash
     - name: Deploy Certificate Stack
       run: |
         cd aws-cdk
-        cdk deploy CertificateStack -c environment=${{ env.ENVIRONMENT }} -c domain="${{ env.DOMAIN }}" -c certificate_arn="Dummy Name" --require-approval "never" --outputs-file cdk-deploy-output.json
+        cdk deploy CertificateStack -c domain="${{ env.DOMAIN }}" -c certificate_arn="Dummy Name" --require-approval "never" --outputs-file cdk-deploy-output.json
         echo "::set-env name=CERT_ARN::$(jq .CertificateStack.certificatearn cdk-deploy-output.json)"
-      shell: bash
-    - name: Deploy Artifact Stack
-      run: |
-        cd aws-cdk
-        cdk deploy ArtifactStack -c environment=${{ env.ENVIRONMENT }} -c domain="${{ env.DOMAIN }}" -c certificate_arn="Dummy Name" --require-approval "never" --outputs-file cdk-deploy-output.json
-        echo "::set-env name=ARTIFACT_BUCKET::$(jq .ArtifactStack.artifactbucketname cdk-deploy-output.json)"
       shell: bash
     - name: Deploy Static Site Stack
       run: |
         cd aws-cdk
-        cdk deploy "StaticSiteStack*" -c environment=${{ env.ENVIRONMENT }} -c domain="${{ env.DOMAIN }}" -c certificate_arn="${{ env.CERT_ARN }}" --require-approval "never" --outputs-file cdk-deploy-output.json
+        cdk deploy "StaticSiteStack*" -c domain="${{ env.DOMAIN }}" -c certificate_arn="${{ env.CERT_ARN }}" --require-approval "never" --outputs-file cdk-deploy-output.json
       shell: bash
     - name: Set Environment Variables
       run: |

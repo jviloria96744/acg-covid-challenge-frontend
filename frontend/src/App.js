@@ -1,24 +1,34 @@
-import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import React, { useEffect, useContext } from "react";
+import { Grid, Typography } from "@material-ui/core";
+import NavBar from "./components/layout/NavBar";
+import BodyContainer from "./components/layout/BodyContainer";
+import GraphContext from "./context/graph/graphContext";
 
 function App() {
+  const graphContext = useContext(GraphContext);
+
+  const { getCovidData, data } = graphContext;
+
+  useEffect(() => {
+    getCovidData();
+    // eslint-disable-next-line
+  }, []);
+
+  const loadingData = () => {
+    return (
+      <Grid container style={{ marginTop: "25px" }}>
+        <Typography variant="h5" style={{ paddingLeft: "24px" }}>
+          Loading Data...
+        </Typography>
+      </Grid>
+    );
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <NavBar />
+
+      {data === null ? loadingData() : <BodyContainer />}
     </div>
   );
 }
