@@ -12,7 +12,8 @@ domain = app.node.try_get_context("domain")
 cert_env = core.Environment(account=os.environ["CDK_DEFAULT_ACCOUNT"],
                             region="us-east-1")
 
-CertificateStack(app, "CertificateStack", sub_domain, domain, env=cert_env)
+CertificateStack(
+    app, f"CertificateStack-{sub_domain}", sub_domain, domain, env=cert_env)
 
 aws_env = core.Environment(account=os.environ["CDK_DEFAULT_ACCOUNT"],
                            region=os.environ["CDK_DEFAULT_REGION"])
