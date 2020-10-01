@@ -3,6 +3,11 @@ import { Grid } from "@material-ui/core";
 import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 import GraphContext from "../../context/graph/graphContext";
 
+/**
+ * Buttons used to determine Graph Type, e.g. Daily/Monthly/Linear/Logarithmic
+ * NOTE: Daily/Monthly graphs are incremental data, Linear/Logarithmic graphs are cumulative data
+ */
+
 const GraphSelectionButtons = () => {
   const graphContext = useContext(GraphContext);
 

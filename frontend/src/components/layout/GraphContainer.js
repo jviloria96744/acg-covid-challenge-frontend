@@ -4,6 +4,10 @@ import Graph from "../graph/Graph";
 import GraphSelectionLabel from "../graph/GraphSelectionLabel";
 import GraphSelectionButtons from "../graph/GraphSelectionButtons";
 
+/**
+ * Container for graph component as well as graph type selection buttons
+ */
+
 const GraphContainer = () => {
   return (
     <Grid

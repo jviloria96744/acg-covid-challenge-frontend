@@ -1,6 +1,11 @@
 import React from "react";
 import { Typography } from "@material-ui/core";
 
+/**
+ * Utility constants/functions used to render graph
+ * Includes maps from data values to UI label values and custom Tooltip and Legend components
+ */
+
 export const LABEL_MAP = {
   "cases-diff": "Cases",
   "deaths-diff": "Deaths",

@@ -9,6 +9,11 @@ import {
 } from "@material-ui/core";
 import GraphContext from "../../context/graph/graphContext";
 
+/**
+ * Radio Button Group for Cases/Deaths/Recoveries selection
+ * This choice determines what data field is displayed on the graph
+ */
+
 const DataTypeRadio = () => {
   const graphContext = useContext(GraphContext);
 

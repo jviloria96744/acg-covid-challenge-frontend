@@ -45,6 +45,10 @@ export default (state, action) => {
   }
 };
 
+/**
+ * Gets brush filter key as well as data object key for X-Axis values based on graph selection type
+ *
+ */
 const setBrushDataKey = (graphSelection) => {
   if (graphSelection === "Monthly") {
     return "yearMonth";
@@ -53,6 +57,10 @@ const setBrushDataKey = (graphSelection) => {
   return "date";
 };
 
+/**
+ * Sets correct key/column for Y-Axis fields based on graph/data type selected
+ *
+ */
 const setGraphDataKey = (graphSelection, graphDataKey) => {
   switch (true) {
     case ["Daily", "Monthly"].includes(graphSelection):
@@ -66,6 +74,10 @@ const setGraphDataKey = (graphSelection, graphDataKey) => {
   }
 };
 
+/**
+ * Sets correct Graph Header/Label based on graph/data selections
+ *
+ */
 const setGraphLabel = (graphSelection, graphDataKey) => {
   const LABEL_MAP = {
     cases: "Cases",
@@ -85,11 +97,20 @@ const setGraphLabel = (graphSelection, graphDataKey) => {
   }
 };
 
+/**
+ * Creates aggregated data for use in monthly view
+ * Data from initial API call is grouped at the Year/Month level and summed for individual cases/deaths/recoveries
+ *
+ * @param {object} data
+ */
 const createMonthlyData = (data) => {
+  // date field is in format, YYYY-MM-DD
+  // this is creating a year/month field in the format YYYY-MM
   let yearMonthValues = data.map((record) => {
     return record.date.substring(0, 7);
   });
 
+  // get unique year/month values and loop over them aggregating cases/deaths and recoveries for each value
   yearMonthValues = [...new Set(yearMonthValues)];
 
   return yearMonthValues.map((date) => {

@@ -1,4 +1,4 @@
-name: React CI/CD AWS CDK
+name: Python ETL Dashboard
 on:
   push:
     branches:

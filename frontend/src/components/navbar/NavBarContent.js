@@ -2,6 +2,13 @@ import React, { useContext } from "react";
 import { Typography, Link } from "@material-ui/core";
 import GraphContext from "../../context/graph/graphContext";
 
+/**
+ * Content of NavBar component
+ * website title
+ * link to original challenge description
+ * Last Modified/Run Date of ETL Process
+ */
+
 const NavBarContent = () => {
   const graphContext = useContext(GraphContext);
 

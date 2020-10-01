@@ -17,6 +17,10 @@ const GraphState = (props) => {
 
   const [state, dispatch] = useReducer(GraphReducer, initialState);
 
+  /**
+   * Gets data from API created in back-end project
+   *
+   */
   const getCovidData = async () => {
     let url = "https://api.jviloria.com/covid19etlchallenge/covid_data";
     const res = await fetch(url, {
@@ -32,16 +36,26 @@ const GraphState = (props) => {
     });
   };
 
+  /**
+   * Sets graph type
+   *
+   * @param {string} selectedGraph, takes values in ["Daily", "Monthly", "Linear", "Logarithmic"]
+   */
   const setGraphType = (selectedGraph) => {
     dispatch({
       type: SET_GRAPH_TYPE,
       payload: {
-        dataKey: state.graphDataKey.split("-")[0],
+        dataKey: state.graphDataKey.split("-")[0], //cases-diff -> cases
         graphSelection: selectedGraph,
       },
     });
   };
 
+  /**
+   * Sets data key
+   *
+   * @param {string} selectedDataKey, takes values in ["Cases", "Deaths", "Recoveries"]
+   */
   const setDataKey = (selectedDataKey) => {
     dispatch({
       type: SET_DATA_KEY,

@@ -3,6 +3,10 @@ import { Grid } from "@material-ui/core";
 import GraphContainer from "./GraphContainer";
 import ControlsContainer from "./ControlsContainer";
 
+/**
+ * Container layout component for everything under the NavBar
+ */
+
 const BodyContainer = () => {
   return (
     <Grid container style={{ marginTop: "25px" }}>

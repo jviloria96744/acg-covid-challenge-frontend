@@ -1,6 +1,8 @@
-# Welcome to your CDK Python project!
+# Python ETL Dashboard
 
-This is a project for Python development with CDK that deploys a static website to AWS. The static files are hosted from an S3 Bucket which sits behind a CloudFront Distribution with an AWS issued Certificate for secure web traffic. The static site has a custom domain with three development environments.
+This project deploys the dashboard as a static site hosted from an S3 Bucket. This dashboard is associated with step 11 of the [September 2020 ACloudGuru Challenge](https://acloudguru.com/blog/engineering/cloudguruchallenge-python-aws-etl).
+
+NOTE: The following instructions (until the CloudFormation Stack Description section) mirror the CDK template that is created when running `cdk init app --lanugage python`. This is left for people that are new to CDK.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
@@ -56,16 +58,14 @@ command.
 
 ## CloudFormation Stack Description
 
-There are three CloudFormation stacks that this project creates.
+There are two CloudFormation stacks that this project creates.
 
-- `CertificateStack` : This creates the SSL Certificate in the `us-east-1` region tied to `dev.my-domain.com`, `stg.my-domain.com` and `prod.my-domain.com`
-- `ArtifactStack` : This creates an S3 Bucket used to store deployment artifacts created during `stg` deployments and used during `prod` deployments
-- `StaticSiteStack` : This creates the S3 Bucket used for static site hosting, the CloudFront Distribution that sits in front of it and the Route53 record set that ties the custom domain name to the CloudFront DNS. One stack is created for each development environment.
+- `CertificateStack-acg-covid-challenge` : This creates the SSL Certificate in the `us-east-1` region tied to `acg-covid-challenge.jviloria.com`
+- `PythonETLDashboard` : This creates the S3 Bucket used for static site hosting, the CloudFront Distribution that sits in front of it and the Route53 record set that ties the custom domain name to the CloudFront DNS.
 
-When deploying the stacks, three context variables must be included,
+When deploying the stacks, two context variables must be included,
 
-- `environment` : This is the deployment environment, e.g. `dev`, `stg` and `prod`
 - `domain` : This is the custom domain name, the GitHub Secret, AWS_DOMAIN_NAME
-- `certificate_arn` : This is the ARN (Amazon Resource Number) of the certificate created by the `CertificateStack`
+- `certificate_arn` : This is the ARN (Amazon Resource Number) of the certificate created by the `CertificateStack-acg-covid-challenge`
 
 Enjoy!
