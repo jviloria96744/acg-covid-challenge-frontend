@@ -20,12 +20,18 @@ runs:
       run: |
         cd aws-cdk
         cdk deploy CertificateStack-acg-covid-challenge -c domain="${{ env.DOMAIN }}" -c certificate_arn="Dummy Name" --require-approval "never" --outputs-file cdk-deploy-output.json
-        echo "::set-env name=CERT_ARN::$(jq .CertificateStack-acg-covid-challenge.certificatearn cdk-deploy-output.json)"
+        export FILE=cdk-deploy-output.json
+        export STACK=$(jq keys_unsorted[] $FILE)
+        function remove_quotes {
+            echo $1 | tr -d '"'
+        }
+
+        echo "::set-env name=CERT_ARN::$(remove_quotes $(jq .$STACK.certificatearn $FILE))"
       shell: bash
     - name: Deploy Static Site Stack
       run: |
         cd aws-cdk
-        cdk deploy "StaticSiteStack*" -c domain="${{ env.DOMAIN }}" -c certificate_arn="${{ env.CERT_ARN }}" --require-approval "never" --outputs-file cdk-deploy-output.json
+        cdk deploy PythonETLDashboard -c domain="${{ env.DOMAIN }}" -c certificate_arn="${{ env.CERT_ARN }}" --require-approval "never" --outputs-file cdk-deploy-output.json
       shell: bash
     - name: Set Environment Variables
       run: |
