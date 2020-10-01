@@ -8,7 +8,7 @@ on:
       - "aws-cdk/certificate_stack/**"
       - "aws-cdk/app.py"
       - "frontend/src/**"
-      #- ".github/**" # Uncomment to test workflow changes
+      - ".github/**" # Uncomment to test workflow changes
 
 jobs:
   build:

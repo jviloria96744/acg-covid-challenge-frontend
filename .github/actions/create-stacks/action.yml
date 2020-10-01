@@ -19,8 +19,8 @@ runs:
     - name: Deploy Certificate Stack
       run: |
         cd aws-cdk
-        cdk deploy CertificateStack -c domain="${{ env.DOMAIN }}" -c certificate_arn="Dummy Name" --require-approval "never" --outputs-file cdk-deploy-output.json
-        echo "::set-env name=CERT_ARN::$(jq .CertificateStack.certificatearn cdk-deploy-output.json)"
+        cdk deploy CertificateStack-acg-covid-challenge -c domain="${{ env.DOMAIN }}" -c certificate_arn="Dummy Name" --require-approval "never" --outputs-file cdk-deploy-output.json
+        echo "::set-env name=CERT_ARN::$(jq .CertificateStack-acg-covid-challenge.certificatearn cdk-deploy-output.json)"
       shell: bash
     - name: Deploy Static Site Stack
       run: |
